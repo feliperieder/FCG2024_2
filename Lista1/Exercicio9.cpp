@@ -123,20 +123,38 @@ int main()
 
 		glBindVertexArray(VAO); //Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glUniform4f(colorLoc, 0.0f, 0.07, 0.8f, 1.0f); //Cor da casa
 
 		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glDrawArrays(GL_TRIANGLES, 0, 6); //Exercício 5.a
+		// Desenhando a casa utilizando GL_TRIANGLE_FAN
+		glDrawArrays(GL_TRIANGLE_FAN, 2, 4);
+		glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+		glDrawArrays(GL_LINE_LOOP, 2, 4);
 
-		//Desenha as linhas do exercício 5.b
-		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
-		glDrawArrays(GL_LINE_LOOP, 0,3); //Linhas do T1
-		glDrawArrays(GL_LINE_LOOP, 3,3); //Linhas do T2
+		//Desenhando o chão utilizando GL_LINES
+		glUniform4f(colorLoc, 0.0f, 0.2f, 0.0f, 1.0f);
+		glDrawArrays(GL_LINES, 0,2);
 
-		//Desenha os pontos do exercício 5.c
-		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
-		glDrawArrays(GL_POINTS, 0, 6); //Linhas do T2
+		//Desenhando telhado utilizando GL_TRIANGLE
+		glUniform4f(colorLoc, 4.0f, 0.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_TRIANGLES, 6, 3);
+		glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+		glDrawArrays(GL_LINE_LOOP, 6, 3);
+
+		// Desenhando a porta utilizando GL_TRIANGLE_FAN
+		glUniform4f(colorLoc, 0.6f, 0.3f, 0.0f, 1.0f);
+		glDrawArrays(GL_TRIANGLE_FAN, 9, 4);
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_LINE_LOOP, 9, 4);
+
+		// Desenhando a janela utilizando GL_TRIANGLE_FAN
+		glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_TRIANGLE_FAN, 13, 4);
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_LINE_LOOP, 13, 4);
+
+		glDrawArrays(GL_LINES, 17, 4);
+
 
 		glBindVertexArray(0); //Desconectando o buffer de geometria
 
@@ -220,15 +238,38 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	GLfloat vertices[] = {
 		//x   y     z
-		//T0
-		-0.25, 0.25, 0.0, //v0
-		 -0.5, -0.25, 0.0, //v1
- 		 0.0,  -0.25, 0.0, //v2
-		//T1
-		0.0, -0.25, 0.0, //v3
-		0.25, 0.25, 0.0, //v4
-		-0.25, 0.25, 0.0, //v5
-		//T2
+		//Chão
+		-1.0, -0.5, 0.0, //Chão P1
+		1.0, -0.5, 0.0, //Chão P2
+ 		 
+		//Casa 
+		-0.5,  -0.5, 0.0, //Casa P1
+		-0.5, 0.5, 0.0, //Casa P2
+		0.5, 0.5, 0.0, //Casa P3
+		0.5, -0.5, 0.0, //Casa P4
+		
+		//Telhado
+		-0.5, 0.5, 0.0, //Telhado P1
+		0.0, 1.0, 0.0, //Telhado P2
+		0.5, 0.5, 0.0, //Telhado P3
+
+		//Porta
+		-0.12,  -0.5, 0.0, //Porta P1
+		-0.12, 0.0, 0.0, //Porta P2
+		0.12, 0.0, 0.0, //Porta P3
+		0.12, -0.5, 0.0, //Porta P4
+
+		//Janela
+		-0.35,  0.1, 0.0, //Janela P1
+		-0.35, 0.3, 0.0, //Janela P2
+		-0.15, 0.3, 0.0, //Janela P3
+		-0.15, 0.1, 0.0, //Janela P4
+
+		//Enfeite Janela
+		-0.35,  0.2, 0.0, //Janela P1
+		-0.15, 0.2, 0.0, //Janela P2
+		-0.25, 0.3, 0.0, //Janela P3
+		-0.25, 0.1, 0.0, //Janela P4
 			  
 	};
 
