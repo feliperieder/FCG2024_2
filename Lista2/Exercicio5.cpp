@@ -117,6 +117,14 @@ int main()
 	//Matriz de projeção paralela ortográfica
 	mat4 projection = ortho(0.0, 800.0, 0.0, 600.0, -1.0, 1.0);
 	glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, value_ptr(projection));
+
+	//MAtriz de modelo: Transformações na Geometria
+	mat4 model = mat4(1);// Matriz Identidade
+	//Transação
+	model = translate(model, vec3(400.0, 300.0, 0.0));
+	//Escala
+	model = scale(model, vec3(400.0, 300.0, 1.0));
+	glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, value_ptr(model));
 	
 
 	// Loop da aplicação - "game loop"
