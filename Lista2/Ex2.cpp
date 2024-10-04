@@ -35,6 +35,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 int setupShader();
 int setupGeometry();
 
+void drawTriangle(GLuint shaderID, GLuint VAO, vec3 position, vec3 dimensions, float angle, vec3 color_area, vec3 color_line, vec3 axis = (vec3(0.0, 0.0, 1.0)));
+
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
 
@@ -120,7 +122,7 @@ int main()
 	mat4 projection = ortho(0.0, 800.0, 0.0, 600.0, -1.0, 1.0);
 	glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, value_ptr(projection));
 
-	//MAtriz de modelo: Transformações na Geometria
+	//Matriz de modelo: Transformações na Geometria
 	mat4 model = mat4(1);// Matriz Identidade
 	//Transação
 	model = translate(model, vec3(400.0, 300.0, 0.0));
@@ -135,13 +137,6 @@ int main()
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
 
-			mat4 model = mat4(1);// Matriz Identidade
-		//Transação
-		model = translate(model, vec3(400.0, 300.0, 0.0));
-		//Escala
-		model = scale(model,vec3(abs(cos(glfwGetTime())) * 300.0,abs(cos(glfwGetTime())) * 300.0, 1.0));
-		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, value_ptr(model));
-
 		// Limpa o buffer de cor
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -151,20 +146,12 @@ int main()
 
 		glBindVertexArray(VAO); //Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-
-		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glDrawArrays(GL_TRIANGLES, 0, 6); //Exercício 5.a
-
-		//Desenha as linhas do exercício 5.b
-		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
-		glDrawArrays(GL_LINE_LOOP, 0,3); //Linhas do T1
-		glDrawArrays(GL_LINE_LOOP, 3,3); //Linhas do T2
-
-		//Desenha os pontos do exercício 5.c
-		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
-		glDrawArrays(GL_POINTS, 0, 6); //Linhas do T2
+		//Primeiro Triangulo
+		drawTriangle(shaderID, VAO,vec3(100.0,500.0,0.0),vec3(100.0,100.0,1.0),0.0,vec3(0.0,0.0,1.0), vec3(1.0,0.0,1.0));
+		//Segundo Triangulo
+		drawTriangle(shaderID, VAO,vec3(350.0,350.0,0.0),vec3(200.0,200.0,1.0),180.0,vec3(0.0,1.0,0.0), vec3(0.0,1.0,1.0));
+		//Terceiro Triangulo
+		drawTriangle(shaderID, VAO,vec3(600.0,200.0,0.0),vec3(300.0,300.0,1.0),0.0,vec3(1.0,0.0,0.0), vec3(1.0,1.0,0.0));
 
 		glBindVertexArray(0); //Desconectando o buffer de geometria
 
@@ -248,16 +235,9 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	GLfloat vertices[] = {
 		//x   y     z
-		//T0
-		-0.25, 0.25, 0.0, //v0
-		-0.5, -0.25, 0.0, //v1
- 		0.0,  -0.25, 0.0, //v2
-		//T1
-		0.0, -0.25, 0.0, //v3
-		0.25, 0.25, 0.0, //v4
-		-0.25, 0.25, 0.0, //v5
-		//T2
-			  
+		-0.5, -0.5, 0.0, //v0
+		0.0, 0.5, 0.0, //v1
+ 		0.5, -0.5, 0.0, //v2			  
 	};
 
 	GLuint VBO, VAO;
@@ -293,3 +273,24 @@ int setupGeometry()
 	return VAO;
 }
 
+void drawTriangle(GLuint shaderID, GLuint VAO, vec3 position, vec3 dimensions, float angle, vec3 color_area, vec3 color_line, vec3 axis)
+{
+	//MAtriz de modelo: Transformações na Geometria
+	mat4 model = mat4(1);// Matriz Identidade
+	//Transação
+	model = translate(model, position);
+	//Escala
+	model = scale(model, dimensions);
+	//Rotação
+	model = rotate(model, radians(angle), axis);
+	glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, value_ptr(model));
+
+	glUniform4f(glGetUniformLocation(shaderID, "inputColor"), color_area.r, color_area.g, color_area.b, 1.0f); //enviando cor para variável uniform inputColor
+
+	// Chamada de desenho - drawcall
+	// Poligono Preenchido - GL_TRIANGLES
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glUniform4f(glGetUniformLocation(shaderID, "inputColor"), color_line.r, color_line.g, color_line.b, 1.0f); //enviando cor para variável uniform inputColor
+	glDrawArrays(GL_LINE_LOOP, 0,3); //Linhas do T1
+
+}
