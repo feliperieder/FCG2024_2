@@ -24,6 +24,8 @@ using namespace std;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <cmath>
+
 using namespace glm;
 
 // Protótipo da função de callback de teclado
@@ -133,6 +135,13 @@ int main()
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
 
+			mat4 model = mat4(1);// Matriz Identidade
+		//Transação
+		model = translate(model, vec3(400.0, 300.0, 0.0));
+		//Escala
+		model = scale(model,vec3(abs(cos(glfwGetTime())) * 300.0,abs(cos(glfwGetTime())) * 300.0, 1.0));
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, value_ptr(model));
+
 		// Limpa o buffer de cor
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -149,13 +158,13 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 6); //Exercício 5.a
 
 		//Desenha as linhas do exercício 5.b
-		//glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
-		//glDrawArrays(GL_LINE_LOOP, 0,3); //Linhas do T1
-		//glDrawArrays(GL_LINE_LOOP, 3,3); //Linhas do T2
+		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
+		glDrawArrays(GL_LINE_LOOP, 0,3); //Linhas do T1
+		glDrawArrays(GL_LINE_LOOP, 3,3); //Linhas do T2
 
 		//Desenha os pontos do exercício 5.c
-		//glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
-		//glDrawArrays(GL_POINTS, 0, 6); //Linhas do T2
+		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_POINTS, 0, 6); //Linhas do T2
 
 		glBindVertexArray(0); //Desconectando o buffer de geometria
 
