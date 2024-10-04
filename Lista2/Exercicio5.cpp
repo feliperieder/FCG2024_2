@@ -38,12 +38,13 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 
 // Código fonte do Vertex Shader (em GLSL): ainda hardcoded
 const GLchar* vertexShaderSource = "#version 400\n"
-"uniform mat4 projection;\n"
 "layout (location = 0) in vec3 position;\n"
+"uniform mat4 projection;\n"
+"uniform mat4 model;\n"
 "void main()\n"
 "{\n"
 //...pode ter mais linhas de código aqui!
-"gl_Position =projection * vec4(position.x, position.y, position.z, 1.0);\n"
+"gl_Position =projection * model * vec4(position.x, position.y, position.z, 1.0);\n"
 "}\0";
 
 //Códifo fonte do Fragment Shader (em GLSL): ainda hardcoded
@@ -114,7 +115,7 @@ int main()
 	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
 	
 	//Matriz de projeção paralela ortográfica
-	mat4 projection = ortho(-10.0, 10.0, -10.0, 10.0, -1.0, 1.0);
+	mat4 projection = ortho(0.0, 800.0, 0.0, 600.0, -1.0, 1.0);
 	glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, value_ptr(projection));
 	
 
@@ -232,8 +233,8 @@ int setupGeometry()
 		//x   y     z
 		//T0
 		-0.25, 0.25, 0.0, //v0
-		 -0.5, -0.25, 0.0, //v1
- 		 0.0,  -0.25, 0.0, //v2
+		-0.5, -0.25, 0.0, //v1
+ 		0.0,  -0.25, 0.0, //v2
 		//T1
 		0.0, -0.25, 0.0, //v3
 		0.25, 0.25, 0.0, //v4
