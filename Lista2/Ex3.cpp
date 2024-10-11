@@ -28,8 +28,6 @@ using namespace std;
 
 using namespace glm;
 
-enum directions{NONE, UP, DOWN, LEFT, RIGHT};
-
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -37,7 +35,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 int setupShader();
 int setupGeometry();
 
-void drawTriangle(GLuint shaderID, GLuint VAO, vec3 position, vec3 dimensions, float angle, vec3 color_area, vec3 color_line, vec3 axis = (vec3(0.0, 0.0, 1.0)));
+void drawSquare(GLuint shaderID, GLuint VAO, vec3 position, vec3 dimensions, float angle, vec3 color_area, vec3 axis = (vec3(0.0, 0.0, 1.0)));
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -61,10 +59,6 @@ const GLchar* fragmentShaderSource = "#version 400\n"
 "{\n"
 "color = inputColor;\n"
 "}\n\0";
-
-//Globais
-int dir = NONE;
-bool keys[1024];
 
 // Função MAIN
 int main()
@@ -128,13 +122,6 @@ int main()
 	mat4 projection = ortho(0.0, 800.0, 0.0, 600.0, -1.0, 1.0);
 	glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, value_ptr(projection));
 
-	vec3 position = vec3(400.0, 300.0, 0.0);
-	float vel = 2.0;
-
-	for(int i = 0; i<1024; i++){
-		keys[i] = false;
-	}
-
 	//Matriz de modelo: Transformações na Geometria
 	mat4 model = mat4(1);// Matriz Identidade
 	//Transação
@@ -142,6 +129,21 @@ int main()
 	//Escala
 	model = scale(model, vec3(400.0, 300.0, 1.0));
 	glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, value_ptr(model));
+
+	float reds[99];
+	float greens[99];
+	float blues[99];
+	for(int index = 0; index <=99; index++){
+		float red = (rand()%10);
+		red /= 10;
+		float green = (rand()%10);
+		green /=10;
+		float blue = (rand()%10);
+		blue/=10;
+		reds[index] = red;
+		greens[index] = green;
+		blues[index] = blue;
+	}
 	
 
 	// Loop da aplicação - "game loop"
@@ -159,24 +161,17 @@ int main()
 
 		glBindVertexArray(VAO); //Conectando ao buffer de geometria
 
-
-		if (keys[GLFW_KEY_W] or keys[GLFW_KEY_UP]){
-			position.y += vel;
-		}
-		if (keys[GLFW_KEY_S] or keys[GLFW_KEY_DOWN]){
-			position.y -= vel;
-		}
-		if (keys[GLFW_KEY_A] or keys[GLFW_KEY_LEFT]){
-			position.x -= vel;
-		}
-		if (keys[GLFW_KEY_D] or keys[GLFW_KEY_RIGHT]){
-			position.x += vel;
+		int indexColor = 0;
+		for( int vertex_x = 150.0; vertex_x < 650.0; vertex_x += 50.0){
+			for(int vertex_y = 50.0; vertex_y < 550.0; vertex_y += 50.0){
+				float red = reds[indexColor];
+				float green = greens[indexColor];
+				float blue = blues[indexColor];
+				drawSquare(shaderID, VAO,vec3(vertex_x,vertex_y,0.0),vec3(500.0,500.0,1.0),0.0,vec3(red,green,blue));
+				indexColor +=1;
+			}
 		}
 		
-		
-
-		//Primeiro Triangulo
-		drawTriangle(shaderID, VAO, position, vec3(100.0,100.0,1.0), 0.0, vec3(0.0,0.0,1.0), vec3(1.0,0.0,1.0));
 
 		glBindVertexArray(0); //Desconectando o buffer de geometria
 
@@ -197,14 +192,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
-
-	if (action == GLFW_PRESS){
-		keys[key] = true;
-	}
-	if (action== GLFW_RELEASE){
-		keys[key] = false;
-	}
-		
 }
 
 //Esta função está basntante hardcoded - objetivo é compilar e "buildar" um programa de
@@ -268,9 +255,10 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	GLfloat vertices[] = {
 		//x   y     z
-		-0.5, -0.5, 0.0, //v0
-		0.0, 0.5, 0.0, //v1
- 		0.5, -0.5, 0.0, //v2			  
+		0.05, -0.05, 0.0, //v0
+		0.05, 0.05, 0.0, //v1
+ 		-0.05, 0.05, 0.0, //v2
+		-0.05, -0.05, 0.0, //v3
 	};
 
 	GLuint VBO, VAO;
@@ -306,7 +294,7 @@ int setupGeometry()
 	return VAO;
 }
 
-void drawTriangle(GLuint shaderID, GLuint VAO, vec3 position, vec3 dimensions, float angle, vec3 color_area, vec3 color_line, vec3 axis)
+void drawSquare(GLuint shaderID, GLuint VAO, vec3 position, vec3 dimensions, float angle, vec3 color_area, vec3 axis)
 {
 	//MAtriz de modelo: Transformações na Geometria
 	mat4 model = mat4(1);// Matriz Identidade
@@ -322,8 +310,5 @@ void drawTriangle(GLuint shaderID, GLuint VAO, vec3 position, vec3 dimensions, f
 
 	// Chamada de desenho - drawcall
 	// Poligono Preenchido - GL_TRIANGLES
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glUniform4f(glGetUniformLocation(shaderID, "inputColor"), color_line.r, color_line.g, color_line.b, 1.0f); //enviando cor para variável uniform inputColor
-	glDrawArrays(GL_LINE_LOOP, 0,3); //Linhas do T1
-
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
