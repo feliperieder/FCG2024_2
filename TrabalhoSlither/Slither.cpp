@@ -69,7 +69,7 @@ vec3 dir = vec3(0.0, -1.0, 0.0); // Vetor direção (do objeto para o mouse)
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
 int setupShader();           // Função para configurar os shaders
 int setupGeometry();         // Função para configurar a geometria (triângulo)
-void drawGeometry(GLuint shaderID, GLuint VAO, int nVertices, vec3 position, vec3 dimensions, float angle, vec3 color, GLuint drawingMode = GL_TRIANGLES, vec3 axis = vec3(0.0, 0.0, 1.0));
+void drawGeometry(GLuint shaderID, GLuint VAO, int nVertices, vec3 position, vec3 dimensions, float angle, vec3 color, GLuint drawingMode = GL_TRIANGLES, int offset = 0 , vec3 axis = vec3(0.0, 0.0, 1.0));
 
 //Colisão
 bool checkCircleCollision(Circle circle1, Circle circle2);
@@ -235,11 +235,11 @@ int main() {
 		drawGeometry(shaderID, snake[i].VAO, snake[i].nVertices, snake[i].position, snake[i].dimensions, snake[i].angle, snake[i].color, GL_TRIANGLE_FAN);
 		if (i == 0){ // cabeça
 			// Desenha as escleras dos olhos
-			drawGeometry(shaderID, eyes.VAO, eyes.nVertices, eyes.position, eyes.dimensions, eyes.angle, eyes.color, GL_TRIANGLE_FAN);
-			drawGeometry(shaderID, eyes.VAO, eyes.nVertices, eyes.position, eyes.dimensions, eyes.angle, eyes.color, GL_TRIANGLE_FAN);
+			drawGeometry(shaderID, eyes.VAO, eyes.nVertices, eyes.position, eyes.dimensions, eyes.angle, eyes.color, GL_TRIANGLE_FAN, 0);
+			drawGeometry(shaderID, eyes.VAO, eyes.nVertices, eyes.position, eyes.dimensions, eyes.angle, eyes.color, GL_TRIANGLE_FAN, 34);
 			// Desenha as pupilas dos olhos
-			drawGeometry(shaderID, eyes.VAO, eyes.nVertices, eyes.position, eyes.dimensions/2.0f, eyes.angle, vec3(0.1, 0.1, 0.1), GL_TRIANGLE_FAN);
-			drawGeometry(shaderID, eyes.VAO, eyes.nVertices, eyes.position, eyes.dimensions/2.0f, eyes.angle, vec3(0.1, 0.1, 0.1), GL_TRIANGLE_FAN);
+			drawGeometry(shaderID, eyes.VAO, eyes.nVertices, eyes.position, eyes.dimensions, eyes.angle, vec3(0.1, 0.1, 0.1), GL_TRIANGLE_FAN, 2*34);
+			drawGeometry(shaderID, eyes.VAO, eyes.nVertices, eyes.position, eyes.dimensions, eyes.angle, vec3(0.1, 0.1, 0.1), GL_TRIANGLE_FAN, 3*34);
 			}
 		}
 
@@ -373,7 +373,7 @@ int setupGeometry() {
 }
 
 // Função para desenhar o objeto
-void drawGeometry(GLuint shaderID, GLuint VAO, int nVertices, vec3 position, vec3 dimensions, float angle, vec3 color, GLuint drawingMode, vec3 axis) {
+void drawGeometry(GLuint shaderID, GLuint VAO, int nVertices, vec3 position, vec3 dimensions, float angle, vec3 color, GLuint drawingMode, int offset, vec3 axis) {
     glBindVertexArray(VAO); // Vincula o VAO
 
     // Aplica as transformações de translação, rotação e escala
@@ -388,7 +388,7 @@ void drawGeometry(GLuint shaderID, GLuint VAO, int nVertices, vec3 position, vec
     glUniform4f(glGetUniformLocation(shaderID, "inputColor"), color.r, color.g, color.b, 1.0f);
 
     // Desenha o objeto
-    glDrawArrays(drawingMode, 0, nVertices);
+    glDrawArrays(drawingMode, offset, nVertices);
 
     // Desvincula o VAO
     glBindVertexArray(0);
@@ -493,8 +493,8 @@ int createEyes(int nPoints, float radius) {
 	float angle = 0.0;
 	float slice = 2 * Pi / static_cast<float>(nPoints);
 	// Posições iniciais para os círculos dos olhos (escleras e pupilas)
-	float xi = 0.125f; // Posição inicial X das escleras
-	float yi = 0.3f; // Posição inicial Y das escleras
+	float xi = 0.3f; // Posição inicial X das escleras
+	float yi = 0.125f; // Posição inicial Y das escleras
 	radius = 0.225f; // Raio das escleras
 
 	// Olho esquerdo (esclera)
@@ -513,12 +513,12 @@ int createEyes(int nPoints, float radius) {
 
 	// Olho direito (esclera)
 	angle = 0.0;
-	vertices.push_back(xi); // Xc
-	vertices.push_back(-yi); // Yc
+	vertices.push_back(-xi); // Xc
+	vertices.push_back(yi); // Yc
 	vertices.push_back(0.0f); // Zc
 	for (int i = 0; i < nPoints + 1; i++) {
-	float x = xi + radius * cos(angle);
-	float y = -yi + radius * sin(angle);
+	float x = -xi + radius * cos(angle);
+	float y = yi + radius * sin(angle);
 	float z = 0.0f;
 	vertices.push_back(x); // Coordenada X
 	vertices.push_back(y); // Coordenada Y
@@ -527,8 +527,8 @@ int createEyes(int nPoints, float radius) {
 	}
 
 	// Olho esquerdo (pupila)
-	radius = 0.18f; // Raio das pupilas
-	xi += 0.09f; // Ajuste de posição para as pupilas
+	radius = 0.16f; // Raio das pupilas
+	yi += 0.09f; // Ajuste de posição para as pupilas
 	angle = 0.0;
 	vertices.push_back(xi); // Xc
 	vertices.push_back(yi); // Yc
@@ -545,12 +545,12 @@ int createEyes(int nPoints, float radius) {
 
 	// Olho direito (pupila)
 	angle = 0.0;
-	vertices.push_back(xi); // Xc
-	vertices.push_back(-yi); // Yc
+	vertices.push_back(-xi); // Xc
+	vertices.push_back(yi); // Yc
 	vertices.push_back(0.0f); // Zc
 	for (int i = 0; i < nPoints + 1; i++) {
-		float x = xi + radius * cos(angle);
-		float y = -yi + radius * sin(angle);
+		float x = -xi + radius * cos(angle);
+		float y = yi + radius * sin(angle);
 		float z = 0.0f;
 		vertices.push_back(x); // Coordenada X
 		vertices.push_back(y); // Coordenada Y
